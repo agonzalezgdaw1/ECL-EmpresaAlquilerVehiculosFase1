@@ -13,9 +13,10 @@
  * 
  * Dos vehículos son iguales si además de pertenecer a la misma clase tienen la
  * misma matrícula
+ * Asier Gonzalez Gamboa
  * 
  */
-public class Vehiculo {
+public abstract class Vehiculo implements Comparable<Vehiculo>{
 	private String matricula;
 	private String marca;
 	private String modelo;
@@ -32,7 +33,42 @@ public class Vehiculo {
 		this.precioDia = precioDia;
 
 	}
+public String getMarca() {
+	return marca;
+}
+public String getMatricula() {
+	return matricula;
+}
+public String getModelo() {
+	return modelo;
+}
+public double getPrecioDia() {
+	return precioDia;
+}
+	public double calcularPrecioAlquiler(int diasTotal) {
+		return diasTotal * precioDia;
+	}
 
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (this.getClass() != obj.getClass()) {
+			return false;
+		}
+		Vehiculo v = (Vehiculo) obj;
+			return v.getMatricula() == matricula;
+	}
+	public String toString() {
+		String str = "Matricula: " + matricula + 
+				"| Marca: " + marca + 
+				"| Modelo: " + modelo + 
+				"\nPrecio d�a alquiler: " + precioDia;
+		return str;
+	}
 	/**
 	 * Redefinición de hashCode()
 	 * 
@@ -41,5 +77,5 @@ public class Vehiculo {
 	public int hashCode() {
 		return matricula.hashCode() * 13;
 	}
-
+	
 }

@@ -1,8 +1,13 @@
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 /**
  * La clase guarda en una colección List (un ArrayList) la flota de vehículos
@@ -10,6 +15,7 @@ import java.util.Set;
  * 
  * Los vehículos se modelan como un interface List que se instanciará como una
  * colección concreta ArrayList
+ * Asier Gonzalez Gamboa
  */
 public class AgenciaAlquiler {
 	private String nombre; // el nombre de la agencia
@@ -29,8 +35,10 @@ public class AgenciaAlquiler {
 	 * añade un nuevo vehículo solo si no existe
 	 * 
 	 */
-	public void addVehiculo() {
-
+	public void addVehiculo(Vehiculo vehiculo) {
+		if(!flota.contains(vehiculo)) {
+			flota.add(vehiculo);
+		}
 	}
 
 	/**
@@ -45,9 +53,21 @@ public class AgenciaAlquiler {
 	 * Asumimos todos los datos correctos. Puede haber espacios antes y después
 	 * de cada dato
 	 */
-	private Vehiculo obtenerVehiculo() {
-
-		return null;
+	private Vehiculo obtenerVehiculo(String linea) {
+		String[] str = linea.split(",");
+		for(int i = 0; i < str.length; i++) {
+			str[i].trim();
+		}
+		if(str[0].equalsIgnoreCase("C")) {
+			Vehiculo v = new Coche(str[1],str[2],str[3],
+					Double.parseDouble(str[4]),Integer.parseInt(str[5]));
+			return v;
+		}
+		else {
+			Vehiculo v = new Furgoneta(str[1],str[2],str[3],
+					Double.parseDouble(str[4]),Double.parseDouble(str[5]));
+			return v;
+		}		
 	}
 
 	/**
@@ -77,7 +97,15 @@ public class AgenciaAlquiler {
 	@Override
 	public String toString() {
 
-		return null;
+		StringBuilder sb = new StringBuilder();
+		sb.append("Veh�culos en alquiler de la agencia ").append(nombre).append("\n");
+		sb.append("Total veh�culos: ").append(flota.size()).append("\n\n");
+		for(Vehiculo vehiculo : flota)
+		{
+			sb.append(vehiculo.toString()).append("\n");
+			sb.append("-----------------------------------------------------\n");
+		}
+		return sb.toString();
 
 	}
 
@@ -87,10 +115,18 @@ public class AgenciaAlquiler {
 	 * costaría alquilar cada coche el nº de días indicado * 
 	 *  
 	 */
-	public String buscarCoches() {
-
-		return null;
-
+	public String buscarCoches(int n) {
+		StringBuilder sb = new StringBuilder();
+		for(Vehiculo v: flota) {
+			if(v instanceof Coche) {
+				sb.append(v.toString()).append("\n");
+				sb.append("Coste alquiler ").append(n).append(" d�as: ");
+				sb.append(v.calcularPrecioAlquiler(n));
+				sb.append("-----------------").append("\n");
+			}
+			
+		}
+		return sb.toString();
 	}
 
 	/**
@@ -99,8 +135,26 @@ public class AgenciaAlquiler {
 	 * 
 	 */
 	public List<Coche> cochesOrdenadosMatricula() {
-
-		return null;
+		
+		ArrayList <Coche> r = new ArrayList<>();
+		
+		Iterator <Vehiculo> it = flota.iterator();
+		
+		while(it.hasNext())
+		{
+			Vehiculo vehiculo = it.next();
+			
+			if(vehiculo instanceof Coche)
+			{
+				if(((Coche) vehiculo).getPlazas() > 4)
+				{
+					r.add((Coche) vehiculo);
+					}
+			}
+		}
+		r.sort(Comparator.comparing(Coche::getMatricula));
+		return r;
+		
 	}
 
 	/**
@@ -110,7 +164,29 @@ public class AgenciaAlquiler {
 	 */
 	public List<Furgoneta> furgonetasOrdenadasPorVolumen() {
 
-		return null;
+		Iterator<Vehiculo> it = flota.iterator();
+		List<Furgoneta> furgonetas = new ArrayList<>();
+		while(it.hasNext())
+		{
+			Vehiculo v = it.next();
+			if(v instanceof Furgoneta)
+			{
+				furgonetas.add((Furgoneta) v);
+			}
+		}
+		Collections.sort(furgonetas, new Comparator<Vehiculo>() {
+			public int compare(Vehiculo uno, Vehiculo otro) {
+				if (((Furgoneta) uno).getVolumen() > ((Furgoneta) otro).getVolumen()) {
+					return -1;
+				}
+				if (((Furgoneta) uno).getVolumen() == ((Furgoneta) otro).getVolumen()) {
+					return 0;
+				}
+				return 1;
+
+			}
+		});
+		return furgonetas;
 
 	}
 
@@ -121,7 +197,21 @@ public class AgenciaAlquiler {
 	 */
 	public Map<String, Set<String>> marcasConModelos() {
 
-		return null;
+		Map<String, Set<String>> marcas = new TreeMap<>();
+		for(Vehiculo v: flota) {
+			String marca = v.getMarca();
+			String modelo = v.getModelo();
+			if(marcas.containsKey(marca)) {
+				marcas.get(marca).add(modelo);
+			}
+			else {
+				Set<String> set = new TreeSet<>();
+				set.add(modelo);
+				
+				marcas.put(marca, set);
+			}
+		}
+		return marcas;
 	}
 
 }
